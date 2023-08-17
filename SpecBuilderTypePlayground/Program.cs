@@ -12,10 +12,16 @@ namespace SpecBuilderTypePlayground
             SpecBuilder<BatchTask, object> batchTaskSpecBuilder = new();
             SpecBuilder<ActiveTask, object> activeTaskSpecBuilder = new();
 
-            
+            var f = (ActiveTask at) => true;
+            Specification<ActiveTask, bool> atSpec = new() { Mapper = (ActiveTask at) => true };
+
+            HaveAsync(b => b.Build());
 
 
+        }
 
+        private static bool HaveAsync(Func<SpecBuilder<BatchTask, BatchTask>, ISpecification> building) {
+            return true;
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SpecBuilderTypePlayground.Context;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,7 +9,7 @@ namespace SpecBuilderTypePlayground.Spec
 {
     internal static class SpecBuilderExtensions
     {
-        public static SpecBuilder<TFrom, TTo> BuildBatchTaskSpec<TFrom, TTo>(this SpecBuilder<TFrom, TTo> specBuilder)
+        public static SpecBuilder<BatchTask, TTo> BuildBatchTaskSpec<TTo>(this SpecBuilder<BatchTask, TTo> specBuilder)
         {
             return specBuilder;
         }
