@@ -45,4 +45,12 @@ namespace SpecBuilderTypePlayground
          * 
          */
     }
+
+    internal class Proposal2 { 
+        /*
+         * new BatchTaskSpecBuilder()
+         *  .AsActiveTaskSpecBuilder() // returns IActiveTaskSpecBuilder
+         *      .
+         */
+    }
 }
