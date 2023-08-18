@@ -11,8 +11,8 @@ namespace SpecBuilderTypePlayground
             Console.WriteLine("Hello, World!");
 
             // regular query
-            var res = HaveAsync(b => b.QueryActiveTask().ToSpecBuilder());
-            var res2 = GetAsync(b => b.QueryActiveTask().ByClusterId("cluster-1").ToSpecBuilder().Map(t => t.ActiveProperty));
+            var res = HaveAsync(b => b.QueryActiveTask());
+            var res2 = GetAsync(b => b.QueryActiveTask().ByClusterId("cluster-1").Map(t => t.ActiveProperty));
 
             // parsing query properties
             IEnumerable<Target> targets = new List<Target>();
@@ -52,7 +52,7 @@ namespace SpecBuilderTypePlayground
             return default!;
         }
 
-        enum Target { Active, Finalized, All}
+        enum Target { Active, Finalized, All }
         
     }
 }

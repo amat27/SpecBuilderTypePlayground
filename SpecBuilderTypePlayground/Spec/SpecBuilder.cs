@@ -45,39 +45,34 @@ namespace SpecBuilderTypePlayground.Spec
 
         public FinalizedTaskSpecBuilder QueryFinalizedTask() => new FinalizedTaskSpecBuilder();
 
+        public AllTaskSpecBuilder QueryAllTask() => new AllTaskSpecBuilder();
+
         public BatchTaskSpecBuilder ByClusterId(string clusterId) { this.Predicate = t => t.SharedProperty == clusterId; return this; }
 
         public SpecBuilder<ActiveTask, ActiveTask> ToSpecBuilder() => new() { Predicate = this.Predicate };
+    }
 
+    internal class AllTaskSpecBuilder : SpecBuilder<BatchTask, BatchTask>
+    {
+        public AllTaskSpecBuilder ByClusterId(string clusterId) { this.Predicate = t => t.SharedProperty == clusterId; return this; }
 
     }
 
-    internal class ActiveTaskSpecBuilder
+    internal class ActiveTaskSpecBuilder : SpecBuilder<ActiveTask, ActiveTask>
     {
-        public Expression<Func<ActiveTask, bool>> Predicate { get; set; } = null!;
-
-
         public ActiveTaskSpecBuilder ByClusterId(string clusterId) { this.Predicate = t => t.ActiveProperty == clusterId; return this; }
 
-        public SpecBuilder<ActiveTask, ActiveTask> ToSpecBuilder() => new() { Predicate = this.Predicate };
 
     }
 
-    internal class FinalizedTaskSpecBuilder
+    internal class FinalizedTaskSpecBuilder:SpecBuilder<FinalizedTask, FinalizedTask>
     {
-        public Expression<Func<FinalizedTask, bool>> Predicate { get; set; } = null!;
-
-
         public FinalizedTaskSpecBuilder ByClusterId(string clusterId) { this.Predicate = t => t.FinalizedProperty == clusterId; return this; }
-
-        public SpecBuilder<FinalizedTask, FinalizedTask> ToSpecBuilder() => new() { Predicate = this.Predicate };
-
     }
-
 
     internal class QueryBagToSpecParser
     {
-        BatchTaskSpecBuilder batchTaskSpecBuilder = new BatchTaskSpecBuilder();
+        AllTaskSpecBuilder allTaskSpecBuilder = new AllTaskSpecBuilder();
         ActiveTaskSpecBuilder activeTaskSpecBuilder = new ActiveTaskSpecBuilder();
         FinalizedTaskSpecBuilder finalizedTaskSpecBuilder = new FinalizedTaskSpecBuilder();
 
@@ -122,9 +117,9 @@ namespace SpecBuilderTypePlayground.Spec
         {
             return this.state switch
             {
-                State.Active => this.activeTaskSpecBuilder.ToSpecBuilder().Build(),
-                State.Finalized => this.finalizedTaskSpecBuilder.ToSpecBuilder().Build(),
-                State.All => this.batchTaskSpecBuilder.ToSpecBuilder().Build(),
+                State.Active => this.activeTaskSpecBuilder.Build(),
+                State.Finalized => this.finalizedTaskSpecBuilder.Build(),
+                State.All => this.allTaskSpecBuilder.Build(),
             };
         }
     }
