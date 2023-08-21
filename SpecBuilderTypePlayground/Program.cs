@@ -16,7 +16,7 @@ namespace SpecBuilderTypePlayground
 
             // parsing query properties
             IEnumerable<Target> targets = new List<Target>();
-            var queryToSpec = new QueryBagToSpecParser();
+            var queryToSpec = new QueryBagToSpecParser<TaskInternalState>();
 
             foreach (var target in targets)
             {

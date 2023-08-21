@@ -39,17 +39,11 @@ namespace SpecBuilderTypePlayground.Spec
 
     internal class BatchTaskSpecBuilder
     {
-        public Expression<Func<ActiveTask, bool>> Predicate { get; set; } = null!;
-
         public ActiveTaskSpecBuilder QueryActiveTask() => new ActiveTaskSpecBuilder();
 
         public FinalizedTaskSpecBuilder QueryFinalizedTask() => new FinalizedTaskSpecBuilder();
 
         public AllTaskSpecBuilder QueryAllTask() => new AllTaskSpecBuilder();
-
-        public BatchTaskSpecBuilder ByClusterId(string clusterId) { this.Predicate = t => t.SharedProperty == clusterId; return this; }
-
-        public SpecBuilder<ActiveTask, ActiveTask> ToSpecBuilder() => new() { Predicate = this.Predicate };
     }
 
     internal class AllTaskSpecBuilder : SpecBuilder<BatchTask, BatchTask>
@@ -70,23 +64,35 @@ namespace SpecBuilderTypePlayground.Spec
         public FinalizedTaskSpecBuilder ByClusterId(string clusterId) { this.Predicate = t => t.FinalizedProperty == clusterId; return this; }
     }
 
-    internal class QueryBagToSpecParser
+    internal class QueryBagToTaskInternalSpecParser : QueryBagToSpecParser<TaskInternalState> {
+        QueryBagToTaskInternalSpecParser() {
+            // batchTaskToInternalState = ...;
+            // activeTaskToInternalState = ...;
+            // finalizedTaskToInternalState = ...;
+        }
+    }
+
+    internal class QueryBagToSpecParser<T>
     {
         AllTaskSpecBuilder allTaskSpecBuilder = new AllTaskSpecBuilder();
         ActiveTaskSpecBuilder activeTaskSpecBuilder = new ActiveTaskSpecBuilder();
         FinalizedTaskSpecBuilder finalizedTaskSpecBuilder = new FinalizedTaskSpecBuilder();
 
+        protected Expression<Func<BatchTask, T>> batchTaskToInternalState = null!;
+        protected Expression<Func<ActiveTask, T>>  activeTaskToInternalState = null!;
+        protected Expression<Func<FinalizedTask, T>> finalizedTaskToInternalState = null!;
+
         private State state = State.All;
 
         enum State { Active, Finalized, All, Invalid }
 
-        public QueryBagToSpecParser ByClusterId(string clusterId) 
+        public QueryBagToSpecParser<T> ByClusterId(string clusterId) 
         { 
             // add filter according to state
             return this; 
         }
 
-        public QueryBagToSpecParser Active()
+        public QueryBagToSpecParser<T> Active()
         {
             if (this.state == State.All)
             {
@@ -101,7 +107,7 @@ namespace SpecBuilderTypePlayground.Spec
             }
 
         }
-        public QueryBagToSpecParser Finalized()
+        public QueryBagToSpecParser<T> Finalized()
         {
             if (this.state == State.All)
             { this.state = State.Finalized; return this; }
@@ -117,9 +123,9 @@ namespace SpecBuilderTypePlayground.Spec
         {
             return this.state switch
             {
-                State.Active => this.activeTaskSpecBuilder.Build(),
-                State.Finalized => this.finalizedTaskSpecBuilder.Build(),
-                State.All => this.allTaskSpecBuilder.Build(),
+                State.Active => this.activeTaskSpecBuilder.Map(this.activeTaskToInternalState).Build(),
+                State.Finalized => this.finalizedTaskSpecBuilder.Map(this.finalizedTaskToInternalState).Build(),
+                State.All => this.allTaskSpecBuilder.Map(this.batchTaskToInternalState).Build(),
             };
         }
     }
